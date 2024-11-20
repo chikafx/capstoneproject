@@ -1,0 +1,57 @@
+# Inventory Management System API
+
+## Overview
+
+This Inventory Management System API provides a comprehensive solution for managing products, suppliers, stock levels, orders, and more. The API allows for the retrieval, creation, updating, and deletion of various resources, ensuring efficient and effective inventory management.
+
+## API Endpoints
+
+### /api/products/
+- **GET**: Retrieve a list of all products in inventory.
+- **POST**: Create a new product with details like name, description, category, price, and SKU.
+
+### /api/products/<int:product_id>/
+- **GET**: Retrieve detailed information for a specific product.
+- **PUT**: Update product information (e.g., price or description).
+- **DELETE**: Remove a product from the inventory.
+
+### /api/suppliers/
+- **GET**: Retrieve a list of all suppliers.
+- **POST**: Add a new supplier with details like name, contact information, and address.
+
+### /api/suppliers/<int:supplier_id>/
+- **GET**: Retrieve details for a specific supplier.
+- **PUT**: Update supplier details.
+- **DELETE**: Remove a supplier.
+
+### /api/stock/
+- **GET**: Retrieve a list of all products with their current stock levels.
+- **POST**: Adjust stock levels for a product (e.g., when new stock is received or items are sold).
+
+### /api/stock/<int:product_id>/
+- **GET**: Retrieve stock level for a specific product.
+- **PUT**: Update stock quantity for a specific product.
+
+### /api/orders/
+- **GET**: Retrieve a list of all orders.
+- **POST**: Create a new order with details like product_id, quantity, and customer information.
+
+### /api/orders/<int:order_id>/
+- **GET**: Retrieve details for a specific order, including order status and items.
+- **PUT**: Update order status (e.g., mark as completed, canceled, etc.).
+- **DELETE**: Cancel an order.
+
+### /api/inventory/logs/
+- **GET**: Retrieve a log of all inventory adjustments, such as stock-ins, stock-outs, and orders fulfilled.
+
+### /api/alerts/low-stock/
+- **GET**: Retrieve a list of products that are below the minimum stock threshold.
+
+### /api/reports/
+- **GET**: Retrieve summary reports such as current stock levels, top-selling products, and inventory turnover rate.
+
+## Additional Considerations
+- **Security**: Secure endpoints using API keys or token-based authentication to restrict access.
+- **Validation**: Validate input data, such as ensuring stock levels cannot drop below zero.
+- **Error Handling**: Provide clear error messages for issues such as invalid product IDs or insufficient stock.
+
