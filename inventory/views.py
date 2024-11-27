@@ -92,33 +92,128 @@ class logoutView(APIView):
     def post(self, request):
         return response.Response({'message':'logout successful'})
     
-# views for creating new task
-class TaskCreateView(generics.CreateAPIView):
-     serializer_class=TaskSerializer
-     queryset= Task.objects.filter()
-
-
 # - **POST**: Create a new product with details like name, description, category, price, and SKU.
-
 class CreateProductView(generics.CreateAPIView):
      serializer_class= ProductSerializer
      queryset= Product.objects.filter()
-        
-#  views for updating task
-class UpdateTaskView(generics.UpdateAPIView):
-     serializer_class= TaskSerializer
-     queryset=Task.objects.all()
+
+
+class CreateCategoryView(generics.CreateAPIView):
+     serializer_class= CategorySerializer
+     queryset=Category.objects.filter()
+
+class ShowAllCategoryView(generics.ListAPIView):
+     serializer_class= CategorySerializer
+     queryset=Category.objects.filter()
+
+class SingleCategoryDetails(generics.RetrieveUpdateDestroyAPIView):
+     serializer_class=CategorySerializer
+     queryset=Category
      lookup_field='pk'
 
-class ListTaskView(generics.ListAPIView):
-     serializer_class=TaskSerializer
-     queryset=Task.objects.filter()
+# list all products
+class ProductListView(generics.ListAPIView):
+     serializer_class=ProductSerializer
+     queryset=Product.objects.filter()
 
-class DeleteTaskView(generics.DestroyAPIView):
-     serializer_class= TaskSerializer
-     queryset= Task.objects.all()
+class EachProductInformationView(generics.RetrieveUpdateDestroyAPIView):
+     serializer_class=ProductSerializer
+     queryset=Product.objects.all()
      lookup_field='pk'
         
+# Add a new supplier with details like name, contact information, and address.(POST)
+class RegisterSuppliersView(generics.CreateAPIView):
+     serializer_class=SupplierSerializer
+     queryset=Supplier.objects.filter()
+
+# Retrieve a list of all suppliers.(GET)
+class ViewAllSuppliersView(generics.ListAPIView):
+     serializer_class=SupplierSerializer
+     queryset=Supplier.objects.filter()
+
+class SuppliersDetailsView(generics.RetrieveUpdateDestroyAPIView):
+     serializer_class=SupplierSerializer
+     queryset=Supplier.objects.all()
+     lookup_field='pk'
 
 
 
+# # Adjust stock levels for a product (e.g., when new stock is received or items are sold).(POST)
+class StockLevelOfProductView(generics.UpdateAPIView):
+     serializer_class=ProductSerializer
+     queryset=Product.objects.all()
+     lookup_field='pk'
+     def put(self, request, *args, **kwargs):
+        product = self.get_object()
+        quantity = request.data.get('quantity')
+        adjustment_type = request.data.get('adjustment_type')
+
+        if not quantity or not adjustment_type:
+            return Response({'error': 'Quantity and adjustment type are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            quantity = int(quantity)
+            if adjustment_type == 'stock_in':
+                product.receive_stock(quantity)
+            elif adjustment_type == 'stock_out':
+                product.sell_stock(quantity)
+            else:
+                return Response({'error': 'Invalid adjustment type'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'Stock adjusted successfully'}, status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+# # Retrieve a list of all products with their current stock levels.(GET)
+# class ListOfProductsStockLevelView(generics.ListAPIView):
+#      serializer_class=StockProductSerializer
+#      queryset=Stock.objects.filter()
+
+# # Update stock quantity for a specific product.(PUT)
+# class UpdateStockView(generics.UpdateAPIView):
+#      serializer_class=StockProductSerializer
+#      queryset=Stock.objects.all()
+#      lookup_field='pk'
+
+# # Retrieve stock level for a specific product.
+# class StockLevelView(generics.RetrieveAPIView):
+#      serializer_class=StockProductSerializer
+#      queryset=Stock.objects.all()
+#      lookup_field='pk'
+     
+# Create a new order with details like product_id, quantity, and customer information.
+class OrdersView(generics.CreateAPIView):
+     serializer_class=OrderSerializer
+     queryset=Order.objects.all()
+
+#  Retrieve a list of all orders.
+class AllOrdersView(generics.ListAPIView):
+     serializer_class=OrderSerializer
+     queryset=Order.objects.filter()
+
+
+#  **GET**: Retrieve details for a specific order, including order status and items.
+# - **PUT**: Update order status (e.g., mark as completed, canceled, etc.).
+# - **DELETE**: Cancel an order.
+
+class RetrieveOrdersView(generics.RetrieveUpdateDestroyAPIView):
+     serializer_class=OrderSerializer
+     queryset=Order.objects.all()
+     lookup_field='pk'
+
+# - **GET**: Retrieve a log of all inventory adjustments, such as stock-ins, stock-outs, and orders fulfilled.
+class InventoryLogView(generics.ListAPIView):
+     queryset=InventoryLog.objects.filter()
+     serializer_class=InventorySerializer
+
+# **GET**: Retrieve a list of products that are below the minimum stock threshold.
+class LowStockAlertView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        return Product.objects.filter(stock__lt=models.F('min_stock'))
+
+class LowStockProductListView(generics.ListAPIView):
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        return Product.objects.filter(stock__lt=models.F('min_stock'))
